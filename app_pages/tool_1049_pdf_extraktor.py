@@ -9,11 +9,10 @@ from dashboard.state import (
     KEY_1049_DATAFRAME,
     KEY_1049_EXPORT_BYTES,
     KEY_1049_EXPORT_NAME,
-    WorkflowStep,
     init_state,
-    mark_step_completed,
 )
 from dashboard.ui import render_hero
+from dashboard.upload_validation import UploadValidationError, validate_1049_zip_upload
 
 init_state(st.session_state)
 
@@ -28,21 +27,24 @@ render_hero(
 with st.container(border=True):
     st.markdown("**Eingabe**")
     uploaded_zip = st.file_uploader("ZIP-Datei hochladen", type=["zip"])
-    st.caption("Erlaubt sind ausschließlich PDF-Dateien innerhalb des ZIP-Bündels.")
+    st.caption(
+        "Erlaubt sind ausschließlich PDF-Dateien innerhalb des ZIP-Bündels. "
+        "Maximale Dateigröße: 200 MB."
+    )
 
 if uploaded_zip is not None and st.button(
     "Extraktion starten", use_container_width=True
 ):
     with st.spinner("Die Extraktion wird ausgeführt..."):
         try:
+            validate_1049_zip_upload(uploaded_zip)
             result = extract_zip_payload(uploaded_zip)
-        except ToolIntegrationError as exc:
+        except (ToolIntegrationError, UploadValidationError) as exc:
             st.error(str(exc))
         else:
             st.session_state[KEY_1049_DATAFRAME] = result.dataframe
             st.session_state[KEY_1049_EXPORT_BYTES] = result.excel_artifact.payload
             st.session_state[KEY_1049_EXPORT_NAME] = result.excel_artifact.file_name
-            mark_step_completed(st.session_state, WorkflowStep.PDF_1049)
             st.success(f"Extraktion erfolgreich: {len(result.dataframe)} Positionen.")
 
 dataframe: pd.DataFrame | None = st.session_state.get(KEY_1049_DATAFRAME)

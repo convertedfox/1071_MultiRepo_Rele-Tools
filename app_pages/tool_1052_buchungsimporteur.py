@@ -21,11 +21,13 @@ from dashboard.state import (
     KEY_1052_UPLOAD_SIGNATURE,
     KEY_1052_VALIDATION,
     KEY_1052_VALIDATION_ERROR,
-    WorkflowStep,
     init_state,
-    mark_step_completed,
 )
 from dashboard.ui import render_hero
+from dashboard.upload_validation import (
+    UploadValidationError,
+    validate_1052_excel_upload,
+)
 
 init_state(st.session_state)
 
@@ -38,9 +40,16 @@ render_hero(
 )
 
 input_file = st.file_uploader("Eingabe-Excel", type=["xlsx", "xls"])
+st.caption("Für dieses Tool gilt eine maximale Dateigröße von 30 MB.")
 
 if input_file is None:
     st.info("Bitte eine Eingabe-Excel hochladen.")
+    st.stop()
+
+try:
+    validate_1052_excel_upload(input_file)
+except UploadValidationError as exc:
+    st.error(str(exc))
     st.stop()
 
 payload = input_file.getvalue()
@@ -141,7 +150,6 @@ if submit_transform:
         st.session_state[KEY_1052_TRANSFORM_ERROR] = None
         st.session_state[KEY_1052_OUTPUT_BYTES] = artifact.payload
         st.session_state[KEY_1052_OUTPUT_NAME] = artifact.file_name
-        mark_step_completed(st.session_state, WorkflowStep.IMPORT_1052)
 
 transform_error = st.session_state.get(KEY_1052_TRANSFORM_ERROR)
 if isinstance(transform_error, str) and transform_error:

@@ -1,14 +1,43 @@
 from __future__ import annotations
 
 from dashboard.state import (
-    KEY_STEP_1049_DONE,
-    KEY_STEP_1052_DONE,
-    KEY_STEP_1067_DONE,
-    WorkflowStep,
+    KEY_1049_DATAFRAME,
+    KEY_1049_EXPORT_BYTES,
+    KEY_1049_EXPORT_NAME,
+    KEY_1052_BESOLDUNG_DATE,
+    KEY_1052_OUTPUT_BYTES,
+    KEY_1052_OUTPUT_NAME,
+    KEY_1052_REST_DATE,
+    KEY_1052_TRANSFORM_ERROR,
+    KEY_1052_UPLOAD_SIGNATURE,
+    KEY_1052_VALIDATION,
+    KEY_1052_VALIDATION_ERROR,
+    KEY_1067_CSV_BYTES,
+    KEY_1067_CSV_NAME,
+    KEY_1067_DATAFRAME,
+    KEY_1067_XLSX_BYTES,
+    KEY_1067_XLSX_NAME,
     init_state,
-    is_step_completed,
-    mark_step_completed,
 )
+
+STATE_KEYS = [
+    KEY_1049_DATAFRAME,
+    KEY_1049_EXPORT_BYTES,
+    KEY_1049_EXPORT_NAME,
+    KEY_1067_DATAFRAME,
+    KEY_1067_CSV_BYTES,
+    KEY_1067_XLSX_BYTES,
+    KEY_1067_CSV_NAME,
+    KEY_1067_XLSX_NAME,
+    KEY_1052_UPLOAD_SIGNATURE,
+    KEY_1052_VALIDATION,
+    KEY_1052_VALIDATION_ERROR,
+    KEY_1052_TRANSFORM_ERROR,
+    KEY_1052_OUTPUT_BYTES,
+    KEY_1052_OUTPUT_NAME,
+    KEY_1052_BESOLDUNG_DATE,
+    KEY_1052_REST_DATE,
+]
 
 
 def test_init_state_sets_defaults() -> None:
@@ -16,24 +45,14 @@ def test_init_state_sets_defaults() -> None:
 
     init_state(store)
 
-    assert store[KEY_STEP_1049_DONE] is False
-    assert store[KEY_STEP_1067_DONE] is False
-    assert store[KEY_STEP_1052_DONE] is False
+    for state_key in STATE_KEYS:
+        assert state_key in store
+        assert store[state_key] is None
 
 
 def test_init_state_preserves_existing_values() -> None:
-    store: dict[str, object] = {KEY_STEP_1049_DONE: True}
+    store: dict[str, object] = {KEY_1049_EXPORT_NAME: "test.xlsx"}
 
     init_state(store)
 
-    assert store[KEY_STEP_1049_DONE] is True
-
-
-def test_mark_step_completed() -> None:
-    store: dict[str, object] = {}
-    init_state(store)
-
-    mark_step_completed(store, WorkflowStep.RELE_1067)
-
-    assert is_step_completed(store, WorkflowStep.RELE_1067) is True
-    assert is_step_completed(store, WorkflowStep.PDF_1049) is False
+    assert store[KEY_1049_EXPORT_NAME] == "test.xlsx"

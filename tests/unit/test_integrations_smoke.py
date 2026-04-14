@@ -9,6 +9,7 @@ from pytest import MonkeyPatch
 from dashboard.integrations.base import (
     ToolIntegrationError,
     ToolKey,
+    collect_tool_diagnostics,
     register_tool_import_paths,
     resolve_tool_root,
 )
@@ -46,3 +47,11 @@ def test_register_tool_import_paths_raises_for_missing_submodule(
 ) -> None:
     with pytest.raises(ToolIntegrationError):
         register_tool_import_paths(ToolKey.PDF_1049, workspace_root=tmp_path)
+
+
+def test_collect_tool_diagnostics_marks_missing_submodules(tmp_path: Path) -> None:
+    diagnostics = collect_tool_diagnostics(workspace_root=tmp_path)
+
+    assert len(diagnostics) == 3
+    assert all(diagnostic.submodule_available is False for diagnostic in diagnostics)
+    assert all(diagnostic.import_available is False for diagnostic in diagnostics)

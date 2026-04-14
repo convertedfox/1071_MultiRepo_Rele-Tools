@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from dashboard.integrations.base import collect_tool_diagnostics
 from dashboard.state import init_state
 from dashboard.ui import render_hero
 
@@ -56,3 +57,17 @@ st.caption(
     "und Bedienoberfläche. "
     "Die Fachlogik bleibt in den jeweiligen Einzel-Repos."
 )
+
+with st.expander("Systemdiagnose", expanded=False):
+    diagnostics = collect_tool_diagnostics()
+    rows = [
+        {
+            "Tool": diagnostic.display_name,
+            "Submodul": "bereit" if diagnostic.submodule_available else "fehlt",
+            "Import": "ok" if diagnostic.import_available else "fehlerhaft",
+            "Pfad": str(diagnostic.path),
+            "Details": diagnostic.detail,
+        }
+        for diagnostic in diagnostics
+    ]
+    st.dataframe(rows, use_container_width=True, hide_index=True)

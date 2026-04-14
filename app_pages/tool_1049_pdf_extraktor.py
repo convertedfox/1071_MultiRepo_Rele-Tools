@@ -18,9 +18,9 @@ from dashboard.ui import render_hero
 init_state(st.session_state)
 
 render_hero(
-    title="PDF-Extraktion (1049)",
+    title="PDF-Extraktion",
     description=(
-        "Lade ein ZIP-Buendel mit PDF-Dateien hoch. "
+        "Lade ein ZIP-Bündel mit PDF-Dateien hoch. "
         "Die Anwendung extrahiert Positionen und erstellt eine Excel-Ausgabe."
     ),
 )
@@ -28,12 +28,12 @@ render_hero(
 with st.container(border=True):
     st.markdown("**Eingabe**")
     uploaded_zip = st.file_uploader("ZIP-Datei hochladen", type=["zip"])
-    st.caption("Erlaubt sind ausschliesslich PDF-Dateien innerhalb des ZIP-Buendels.")
+    st.caption("Erlaubt sind ausschließlich PDF-Dateien innerhalb des ZIP-Bündels.")
 
 if uploaded_zip is not None and st.button(
     "Extraktion starten", use_container_width=True
 ):
-    with st.spinner("Die 1049-Extraktion wird ausgefuehrt..."):
+    with st.spinner("Die Extraktion wird ausgeführt..."):
         try:
             result = extract_zip_payload(uploaded_zip)
         except ToolIntegrationError as exc:
@@ -72,7 +72,7 @@ if isinstance(dataframe, pd.DataFrame) and not dataframe.empty:
             ]
             st.dataframe(standort_summary, use_container_width=True, hide_index=True)
         else:
-            st.caption("Keine Standortauswertung verfuegbar.")
+            st.caption("Keine Standortauswertung verfügbar.")
 
 export_bytes = st.session_state.get(KEY_1049_EXPORT_BYTES)
 export_name = st.session_state.get(KEY_1049_EXPORT_NAME)

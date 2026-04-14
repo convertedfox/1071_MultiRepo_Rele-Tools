@@ -37,7 +37,7 @@ def resolve_tool_root(tool: ToolKey | str, workspace_root: Path | None = None) -
     try:
         tool_key = ToolKey(tool)
     except ValueError as exc:
-        raise ToolIntegrationError(f"Unbekannter Tool-Schluessel: {tool}") from exc
+        raise ToolIntegrationError(f"Unbekannter Tool-Schlüssel: {tool}") from exc
 
     root = workspace_root or WORKSPACE_ROOT
     return root / "tools" / _TOOL_DIRECTORY_NAMES[tool_key]
@@ -59,7 +59,7 @@ def register_tool_import_paths(
         src_path = tool_root / "src"
         if not src_path.exists():
             raise ToolIntegrationError(
-                f"Erwartetes src-Verzeichnis fehlt fuer 1052: {src_path}"
+                f"Erwartetes src-Verzeichnis fehlt für 1052: {src_path}"
             )
         candidates = [src_path, tool_root]
     else:

@@ -30,10 +30,10 @@ from dashboard.ui import render_hero
 init_state(st.session_state)
 
 render_hero(
-    title="Buchungsimport vorbereiten (1052)",
+    title="Buchungsimport vorbereiten",
     description=(
         "Validiert die Eingabedatei und erzeugt eine SAP-LBV-Importdatei "
-        "mit den ausgewaehlten Buchungsdaten."
+        "mit den ausgewählten Buchungsdaten."
     ),
 )
 
@@ -69,12 +69,12 @@ except ToolIntegrationError as exc:
     st.stop()
 
 with st.expander("Pflichtspalten", expanded=True):
-    st.caption("Folgende Spalten muessen in der Eingabedatei vorhanden sein:")
+    st.caption("Folgende Spalten müssen in der Eingabedatei vorhanden sein:")
     for col in required_columns:
         st.write(f"- {col}")
 
 if st.button(
-    "Eingabedatei pruefen",
+    "Eingabedatei prüfen",
     use_container_width=True,
 ):
     try:

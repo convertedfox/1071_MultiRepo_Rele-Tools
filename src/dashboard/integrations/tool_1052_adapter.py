@@ -162,4 +162,4 @@ def _parse_ddmmyyyy(value: str) -> date:
     try:
         return datetime.strptime(value, "%d.%m.%Y").date()
     except ValueError as exc:
-        raise ToolIntegrationError(f"Ungueltiges Datumsformat: {value}") from exc
+        raise ToolIntegrationError(f"Ungültiges Datumsformat: {value}") from exc

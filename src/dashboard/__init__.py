@@ -1,1 +1,1 @@
-"""Dashboard package fuer die Orchestrierung der RELE Toolkette."""
+"""Dashboard-Paket für die Orchestrierung der RELE-Toolkette."""

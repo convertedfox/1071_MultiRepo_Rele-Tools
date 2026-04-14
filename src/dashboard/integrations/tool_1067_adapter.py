@@ -49,7 +49,7 @@ def extract_rele_documents(uploaded_files: list[Any]) -> ReleExtractionResult:
 
     rows = parse_documents(documents)
     if not rows:
-        raise ToolIntegrationError("Keine auswertbaren Datensaetze gefunden.")
+        raise ToolIntegrationError("Keine auswertbaren Datensätze gefunden.")
 
     dataframe = rows_to_dataframe(rows)
     return ReleExtractionResult(dataframe=dataframe, documents_count=len(documents))

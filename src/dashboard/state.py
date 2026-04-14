@@ -40,9 +40,9 @@ _STEP_TO_KEY = {
 }
 
 _STEP_TO_LABEL = {
-    WorkflowStep.PDF_1049: "1049 PDF-Extraktor",
-    WorkflowStep.RELE_1067: "1067 RELElisten-Extraktor (optional)",
-    WorkflowStep.IMPORT_1052: "1052 Buchungsimporteur",
+    WorkflowStep.PDF_1049: "PDF-Extraktor",
+    WorkflowStep.RELE_1067: "RELElisten-Extraktor",
+    WorkflowStep.IMPORT_1052: "Buchungsimporteur",
 }
 
 _DEFAULTS: dict[str, Any] = {

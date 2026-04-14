@@ -42,8 +42,8 @@ page = st.navigation(
 
 st.title(page.title)
 st.caption(
-    "Zentrale Oberflaeche fuer die LBV-Werkzeuge. "
-    "Waehlen Sie das passende Tool fuer Ihren Anwendungsfall."
+    "Zentrale Oberfläche für die LBV-Werkzeuge. "
+    "Wählen Sie das passende Tool für Ihren Anwendungsfall."
 )
 
 page.run()

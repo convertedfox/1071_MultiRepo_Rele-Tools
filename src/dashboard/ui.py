@@ -31,12 +31,6 @@ def apply_global_style() -> None:
             linear-gradient(180deg, #f7f6f2 0%, #eef4f7 100%);
         }
 
-        html,
-        body,
-        [class*="st-"] {
-          font-family: "Source Sans 3", sans-serif;
-        }
-
         h1,
         h2,
         h3 {
@@ -88,7 +82,7 @@ def render_hero(title: str, description: str) -> None:
     st.markdown(
         f"""
         <section class="rele-hero">
-          <p class="rele-hero-kicker">RELE Prozesszentrale</p>
+          <p class="rele-hero-kicker">RELE Toolbox</p>
           <h2 class="rele-hero-title">{title}</h2>
           <p class="rele-hero-text">{description}</p>
         </section>

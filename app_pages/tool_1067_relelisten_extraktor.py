@@ -23,7 +23,7 @@ from dashboard.ui import render_hero
 init_state(st.session_state)
 
 render_hero(
-    title="RELElisten-Extraktion (1067)",
+    title="RELE-Listen-Extraktion",
     description=(
         "Dieser Schritt extrahiert strukturierte RELE-Daten aus PDF-Dateien "
         "und stellt CSV- sowie Excel-Exporte bereit."
@@ -33,16 +33,14 @@ render_hero(
 with st.container(border=True):
     st.markdown("**Eingabe**")
     uploads = st.file_uploader(
-        "PDF-Dateien oder ZIP-Buendel hochladen",
+        "PDF-Dateien oder ZIP-Bündel hochladen",
         type=["pdf", "zip"],
         accept_multiple_files=True,
     )
-    st.caption(
-        "Mehrfachauswahl ist erlaubt. ZIP-Dateien koennen Unterordner enthalten."
-    )
+    st.caption("Mehrfachauswahl ist erlaubt. ZIP-Dateien können Unterordner enthalten.")
 
 if uploads and st.button("RELE-Extraktion starten", use_container_width=True):
-    with st.spinner("Die 1067-Extraktion wird ausgefuehrt..."):
+    with st.spinner("Die Extraktion wird ausgeführt..."):
         try:
             result = extract_rele_documents(uploads)
             suffix = (
@@ -61,13 +59,13 @@ if uploads and st.button("RELE-Extraktion starten", use_container_width=True):
             st.session_state[KEY_1067_XLSX_NAME] = xlsx_artifact.file_name
             mark_step_completed(st.session_state, WorkflowStep.RELE_1067)
             st.success(
-                f"Extraktion erfolgreich: {len(result.dataframe)} Datensaetze "
+                f"Extraktion erfolgreich: {len(result.dataframe)} Datensätze "
                 f"aus {result.documents_count} Dokument(en)."
             )
 
 dataframe: pd.DataFrame | None = st.session_state.get(KEY_1067_DATAFRAME)
 if isinstance(dataframe, pd.DataFrame) and not dataframe.empty:
-    st.metric("Datensaetze", value=len(dataframe))
+    st.metric("Datensätze", value=len(dataframe))
 
     summary = dataframe.groupby("Buchungsstelle", as_index=False).agg(
         Anzahl=("Personalnummer", "count")

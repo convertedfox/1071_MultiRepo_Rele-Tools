@@ -57,7 +57,7 @@ def extract_zip_payload(uploaded_zip: Any) -> PdfExtractionResult:
                 zip_ref.extractall(temp_dir)
         except zipfile.BadZipFile as exc:
             raise ToolIntegrationError(
-                "Die hochgeladene Datei ist keine gueltige ZIP."
+                "Die hochgeladene Datei ist keine gültige ZIP."
             ) from exc
 
         dataframe: pd.DataFrame = process_all_pdfs(temp_dir)

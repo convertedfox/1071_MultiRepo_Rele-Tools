@@ -62,16 +62,12 @@ if isinstance(dataframe, pd.DataFrame) and not dataframe.empty:
         st.dataframe(dataframe, use_container_width=True, hide_index=True)
     with tab_auswertung:
         if "Standort" in dataframe.columns and "Betrag (€)" in dataframe.columns:
-            standort_summary = (
-                dataframe.groupby("Standort", as_index=False)["Betrag (€)"]
-                .agg(["count", "sum"])
-                .reset_index()
+            standort_summary = dataframe.groupby("Standort", as_index=False).agg(
+                **{
+                    "Anzahl Positionen": ("Betrag (€)", "count"),
+                    "Gesamtbetrag": ("Betrag (€)", "sum"),
+                }
             )
-            standort_summary.columns = [
-                "Standort",
-                "Anzahl Positionen",
-                "Gesamtbetrag",
-            ]
             st.dataframe(standort_summary, use_container_width=True, hide_index=True)
         else:
             st.caption("Keine Standortauswertung verfügbar.")

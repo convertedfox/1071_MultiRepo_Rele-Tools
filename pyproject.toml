@@ -32,6 +32,7 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+extend-exclude = ["tools"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
@@ -41,6 +42,7 @@ python_version = "3.12"
 warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
+exclude = ["^tools/"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

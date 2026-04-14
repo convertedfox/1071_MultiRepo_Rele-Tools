@@ -18,18 +18,31 @@ from dashboard.state import (
     init_state,
     mark_step_completed,
 )
+from dashboard.ui import render_hero
 
 init_state(st.session_state)
 
-st.subheader("Schritt 2 (optional): RELElisten aus PDF extrahieren")
-uploads = st.file_uploader(
-    "PDF-Dateien oder ZIP-Buendel hochladen",
-    type=["pdf", "zip"],
-    accept_multiple_files=True,
+render_hero(
+    title="RELElisten-Extraktion (1067)",
+    description=(
+        "Dieser Schritt extrahiert strukturierte RELE-Daten aus PDF-Dateien "
+        "und stellt CSV- sowie Excel-Exporte bereit."
+    ),
 )
 
+with st.container(border=True):
+    st.markdown("**Eingabe**")
+    uploads = st.file_uploader(
+        "PDF-Dateien oder ZIP-Buendel hochladen",
+        type=["pdf", "zip"],
+        accept_multiple_files=True,
+    )
+    st.caption(
+        "Mehrfachauswahl ist erlaubt. ZIP-Dateien koennen Unterordner enthalten."
+    )
+
 if uploads and st.button("RELE-Extraktion starten", use_container_width=True):
-    with st.spinner("1067-Extraktion laeuft..."):
+    with st.spinner("Die 1067-Extraktion wird ausgefuehrt..."):
         try:
             result = extract_rele_documents(uploads)
             suffix = (
@@ -54,38 +67,48 @@ if uploads and st.button("RELE-Extraktion starten", use_container_width=True):
 
 dataframe: pd.DataFrame | None = st.session_state.get(KEY_1067_DATAFRAME)
 if isinstance(dataframe, pd.DataFrame) and not dataframe.empty:
-    st.subheader("Vorschau")
-    st.dataframe(dataframe, use_container_width=True, hide_index=True)
+    st.metric("Datensaetze", value=len(dataframe))
 
-    summary = (
-        dataframe.groupby("Buchungsstelle", as_index=False)
-        .agg(Anzahl=("Personalnummer", "count"))
-        .sort_values("Buchungsstelle")
+    summary = dataframe.groupby("Buchungsstelle", as_index=False).agg(
+        Anzahl=("Personalnummer", "count")
     )
-    st.subheader("Kurzstatistik")
-    st.dataframe(summary, use_container_width=True, hide_index=True)
+    summary = summary.sort_values("Buchungsstelle")
+
+    tab_daten, tab_statistik = st.tabs(["Datenvorschau", "Kurzstatistik"])
+    with tab_daten:
+        st.dataframe(dataframe, use_container_width=True, hide_index=True)
+    with tab_statistik:
+        st.dataframe(summary, use_container_width=True, hide_index=True)
 
 csv_bytes = st.session_state.get(KEY_1067_CSV_BYTES)
 csv_name = st.session_state.get(KEY_1067_CSV_NAME)
 xlsx_bytes = st.session_state.get(KEY_1067_XLSX_BYTES)
 xlsx_name = st.session_state.get(KEY_1067_XLSX_NAME)
 
-left, right = st.columns(2)
-with left:
-    if isinstance(csv_bytes, bytes) and isinstance(csv_name, str):
-        st.download_button(
-            "CSV herunterladen",
-            data=csv_bytes,
-            file_name=csv_name,
-            mime="text/csv",
-            use_container_width=True,
-        )
-with right:
-    if isinstance(xlsx_bytes, bytes) and isinstance(xlsx_name, str):
-        st.download_button(
-            "Excel herunterladen",
-            data=xlsx_bytes,
-            file_name=xlsx_name,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True,
-        )
+if any(
+    [
+        isinstance(csv_bytes, bytes) and isinstance(csv_name, str),
+        isinstance(xlsx_bytes, bytes) and isinstance(xlsx_name, str),
+    ]
+):
+    with st.container(border=True):
+        st.markdown("**Export**")
+        left, right = st.columns(2)
+        with left:
+            if isinstance(csv_bytes, bytes) and isinstance(csv_name, str):
+                st.download_button(
+                    "CSV herunterladen",
+                    data=csv_bytes,
+                    file_name=csv_name,
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+        with right:
+            if isinstance(xlsx_bytes, bytes) and isinstance(xlsx_name, str):
+                st.download_button(
+                    "Excel herunterladen",
+                    data=xlsx_bytes,
+                    file_name=xlsx_name,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                )

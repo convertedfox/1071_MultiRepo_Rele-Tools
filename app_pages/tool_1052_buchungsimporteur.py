@@ -25,10 +25,18 @@ from dashboard.state import (
     init_state,
     mark_step_completed,
 )
+from dashboard.ui import render_hero
 
 init_state(st.session_state)
 
-st.subheader("Schritt 3: SAP LBV Buchungsimport erzeugen")
+render_hero(
+    title="Buchungsimport vorbereiten (1052)",
+    description=(
+        "Validiert die Eingabedatei und erzeugt eine SAP-LBV-Importdatei "
+        "mit den ausgewaehlten Buchungsdaten."
+    ),
+)
+
 input_file = st.file_uploader("Eingabe-Excel", type=["xlsx", "xls"])
 
 if input_file is None:
@@ -61,10 +69,14 @@ except ToolIntegrationError as exc:
     st.stop()
 
 with st.expander("Pflichtspalten", expanded=True):
+    st.caption("Folgende Spalten muessen in der Eingabedatei vorhanden sein:")
     for col in required_columns:
         st.write(f"- {col}")
 
-if st.button("Eingabe pruefen", use_container_width=True):
+if st.button(
+    "Eingabedatei pruefen",
+    use_container_width=True,
+):
     try:
         details = validate_input_excel(input_file.name, payload)
     except ToolIntegrationError as exc:
@@ -91,6 +103,7 @@ if validation is not None:
 
 default_output_name = f"SAP_LBV_Import_{date.today().strftime('%Y-%m-%d')}.xlsx"
 with st.form("transform_form", border=True):
+    st.markdown("**Buchungsdaten und Ausgabe**")
     left, right = st.columns(2)
     with left:
         st.date_input(
@@ -138,10 +151,11 @@ output_bytes = st.session_state.get(KEY_1052_OUTPUT_BYTES)
 output_file_name = st.session_state.get(KEY_1052_OUTPUT_NAME)
 if isinstance(output_bytes, bytes) and isinstance(output_file_name, str):
     st.success("Transformation abgeschlossen")
-    st.download_button(
-        "Ausgabe herunterladen",
-        data=output_bytes,
-        file_name=output_file_name,
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        use_container_width=True,
-    )
+    with st.container(border=True):
+        st.download_button(
+            "Importdatei herunterladen",
+            data=output_bytes,
+            file_name=output_file_name,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+        )

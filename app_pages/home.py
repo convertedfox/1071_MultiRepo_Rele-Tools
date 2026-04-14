@@ -2,44 +2,55 @@ from __future__ import annotations
 
 import streamlit as st
 
-from dashboard.state import init_state, workflow_overview
+from dashboard.state import init_state
+from dashboard.ui import render_hero
 
 init_state(st.session_state)
 
-st.subheader("Willkommen")
-st.write(
-    "Dieses Dashboard fuehrt durch die Toolkette fuer RELE-/Personaldaten: "
-    "1049 -> 1067 (optional) -> 1052."
+render_hero(
+    title="Willkommen in der Rele-Toolbox 🛠️",
+    description=(
+        "Diese Anwendung bündelt die RELE-Werkzeuge. "
+        "Sie können jedes Tool direkt auswählen."
+    ),
 )
 
-st.subheader("Ablaufstatus")
-for _, label, done in workflow_overview(st.session_state):
-    icon = "[x]" if done else "[ ]"
-    st.write(f"{icon} {label}")
-
-st.divider()
-st.subheader("Direkt zu den Tools")
-left, middle, right = st.columns(3)
+st.subheader("Toolübersicht")
+left, middle, right = st.columns(3, vertical_alignment="top")
 with left:
-    st.page_link(
-        "app_pages/tool_1049_pdf_extraktor.py",
-        label="1049 PDF-Extraktor",
-        icon=":material/picture_as_pdf:",
-    )
+    with st.container(border=True):
+        st.markdown("**PDF-Extraktor**")
+        st.caption(
+            "Extrahiert Positionen aus PDF-Bündeln und erzeugt eine Excel-Ausgabe."
+        )
+        st.page_link(
+            "app_pages/tool_1049_pdf_extraktor.py",
+            label="Tool oeffnen",
+            use_container_width=True,
+        )
 with middle:
-    st.page_link(
-        "app_pages/tool_1067_relelisten_extraktor.py",
-        label="1067 RELElisten-Extraktor",
-        icon=":material/table_view:",
-    )
+    with st.container(border=True):
+        st.markdown("**RELE-Listen-Extraktor**")
+        st.caption(
+            "Liest RELE-PDF-Dateien aus und exportiert strukturierte Abrechnungsdaten."
+        )
+        st.page_link(
+            "app_pages/tool_1067_relelisten_extraktor.py",
+            label="Tool oeffnen",
+            use_container_width=True,
+        )
 with right:
-    st.page_link(
-        "app_pages/tool_1052_buchungsimporteur.py",
-        label="1052 Buchungsimporteur",
-        icon=":material/receipt_long:",
-    )
+    with st.container(border=True):
+        st.markdown("**Buchungsimporteur**")
+        st.caption("Validiert Eingaben und erzeugt die finale SAP-LBV-Importdatei.")
+        st.page_link(
+            "app_pages/tool_1052_buchungsimporteur.py",
+            label="Tool oeffnen",
+            use_container_width=True,
+        )
 
-st.info(
-    "Hinweis: Dieses Repo enthaelt die Orchestrierung. "
-    "Die Fachlogik bleibt in den einzelnen Tool-Repositories."
+st.caption(
+    "Diese Anwendung enthält nur Orchestrierung "
+    "und Bedienoberfläche. "
+    "Die Fachlogik bleibt in den jeweiligen Einzel-Repos."
 )

@@ -120,7 +120,7 @@ jobs:
           tool_key="${{ steps.payload.outputs.tool_key }}"
           submodule_path="${{ steps.payload.outputs.submodule_path }}"
           short_sha="${{ steps.update.outputs.short_sha }}"
-          branch_name="sync/${tool_key}-${short_sha}"
+          branch_name="sync/${tool_key}-${short_sha}-${GITHUB_RUN_ID}"
 
           git config user.name "rele-sync-bot"
           git config user.email "rele-sync-bot@users.noreply.github.com"

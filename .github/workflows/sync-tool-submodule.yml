@@ -23,7 +23,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.DASHBOARD_AUTOMATION_TOKEN || github.token }}
       INPUT_TOOL_KEY: ${{ inputs.tool_key }}
       INPUT_TOOL_SHA: ${{ inputs.tool_sha }}
       INPUT_SOURCE_REPO: ${{ inputs.source_repo }}
@@ -33,7 +33,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: false
-          token: ${{ secrets.SUBMODULES_READ_TOKEN || github.token }}
+          token: ${{ secrets.DASHBOARD_AUTOMATION_TOKEN || github.token }}
 
       - name: Resolve payload
         id: payload

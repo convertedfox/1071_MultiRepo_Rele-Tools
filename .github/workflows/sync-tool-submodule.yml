@@ -153,11 +153,11 @@ jobs:
 
           echo "pr_url=${pr_url}" >> "$GITHUB_OUTPUT"
 
-      - name: Enable auto-merge
+      - name: Await manual review
         if: steps.changes.outputs.has_changes == 'true'
         run: |
-          set -euo pipefail
-          gh pr merge --auto --squash "${{ steps.pr.outputs.pr_url }}"
+          echo "Sync-PR erstellt: ${{ steps.pr.outputs.pr_url }}"
+          echo "Die PR wartet auf manuelles Review und Merge."
 
       - name: No update required
         if: steps.changes.outputs.has_changes != 'true'

@@ -86,11 +86,11 @@ uv run pytest
 
 ## Automatische Vererbung aus Tool-Repos
 
-Fuer die automatische Uebernahme von Tool-Aenderungen ist folgender Ablauf eingerichtet:
+Für die automatische Übernahme von Tool-Änderungen ist folgender Ablauf eingerichtet:
 
 1. Ein Push auf `master` in einem Tool-Repo (`1049`, `1067`, `1052`) sendet ein `repository_dispatch`-Event an `1071`.
 2. `1071` aktualisiert den passenden Submodul-Pointer auf den gemeldeten Commit.
-3. `1071` erstellt automatisch eine PR und aktiviert Auto-Merge.
+3. `1071` erstellt automatisch eine PR für manuelles Review und Merge.
 
 ### Voraussetzungen
 
@@ -99,9 +99,15 @@ Fuer die automatische Uebernahme von Tool-Aenderungen ist folgender Ablauf einge
 - Das Token braucht mindestens folgende Rechte:
   - Zugriff auf `convertedfox/1071_MultiRepo_Rele-Tools`
   - `contents:write`
-  - `pull_requests:write`
-- Im `1071`-Repo muss in den Repository-Settings **Auto-merge** aktiviert sein.
-- Branch-Protection fuer `master` darf Auto-Merge nicht blockieren (Required Checks sind ok).
+  - `pull_requests:write` (empfohlen)
+- Im `1071`-Repo muss für GitHub Actions gesetzt sein:
+  - `Workflow permissions: Read and write`
+  - `Allow GitHub Actions to create and approve pull requests`
+- Branch-Protection für `master` darf manuelle Reviews zulassen.
+
+Optional:
+
+- `DASHBOARD_AUTOMATION_TOKEN` im `1071`-Repo (nur nötig, wenn ein Tool-Submodul privat ist).
 
 ### Workflows
 

@@ -83,3 +83,29 @@ uv run ruff format .
 uv run mypy .
 uv run pytest
 ```
+
+## Automatische Vererbung aus Tool-Repos
+
+Fuer die automatische Uebernahme von Tool-Aenderungen ist folgender Ablauf eingerichtet:
+
+1. Ein Push auf `master` in einem Tool-Repo (`1049`, `1067`, `1052`) sendet ein `repository_dispatch`-Event an `1071`.
+2. `1071` aktualisiert den passenden Submodul-Pointer auf den gemeldeten Commit.
+3. `1071` erstellt automatisch eine PR und aktiviert Auto-Merge.
+
+### Voraussetzungen
+
+- In **jedem Tool-Repo** muss ein Secret gesetzt sein:
+  - `DASHBOARD_REPO_DISPATCH_TOKEN`
+- Das Token braucht mindestens folgende Rechte:
+  - Zugriff auf `convertedfox/1071_MultiRepo_Rele-Tools`
+  - `contents:write`
+  - `pull_requests:write`
+- Im `1071`-Repo muss in den Repository-Settings **Auto-merge** aktiviert sein.
+- Branch-Protection fuer `master` darf Auto-Merge nicht blockieren (Required Checks sind ok).
+
+### Workflows
+
+- `1071`: `.github/workflows/sync-tool-submodule.yml`
+- `1049`: `.github/workflows/notify-dashboard.yml`
+- `1067`: `.github/workflows/notify-dashboard.yml`
+- `1052`: `.github/workflows/notify-dashboard.yml`

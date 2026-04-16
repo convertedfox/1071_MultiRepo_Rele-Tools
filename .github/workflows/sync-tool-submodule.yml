@@ -1,0 +1,153 @@
+name: Sync tool submodule
+
+on:
+  repository_dispatch:
+    types:
+      - tool-updated
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: sync-${{ github.event.client_payload.tool_key }}
+      cancel-in-progress: false
+    env:
+      TOOL_KEY: ${{ github.event.client_payload.tool_key }}
+      TOOL_SHA: ${{ github.event.client_payload.tool_sha }}
+      SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Validate payload
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TOOL_KEY}" ] || [ -z "${TOOL_SHA}" ]; then
+            echo "tool_key oder tool_sha fehlen im Dispatch-Payload."
+            exit 1
+          fi
+
+          case "${TOOL_KEY}" in
+            1049|1067|1052) ;;
+            *)
+              echo "Unbekannter tool_key: ${TOOL_KEY}"
+              exit 1
+              ;;
+          esac
+
+      - name: Resolve submodule path
+        id: resolve
+        run: |
+          case "${TOOL_KEY}" in
+            1049)
+              echo "submodule_path=tools/1049-pdf-extraktor-lbv" >> "$GITHUB_OUTPUT"
+              echo "tool_name=1049 PDF-Extraktor" >> "$GITHUB_OUTPUT"
+              ;;
+            1067)
+              echo "submodule_path=tools/1067-relelisten-extraktor" >> "$GITHUB_OUTPUT"
+              echo "tool_name=1067 RELElisten-Extraktor" >> "$GITHUB_OUTPUT"
+              ;;
+            1052)
+              echo "submodule_path=tools/1052-buchungsimporteur-sap-lbv" >> "$GITHUB_OUTPUT"
+              echo "tool_name=1052 Buchungsimporteur" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Update submodule commit
+        id: update
+        run: |
+          set -euo pipefail
+
+          submodule_path="${{ steps.resolve.outputs.submodule_path }}"
+          if [ ! -d "${submodule_path}" ]; then
+            echo "Submodulpfad nicht gefunden: ${submodule_path}"
+            exit 1
+          fi
+
+          git -C "${submodule_path}" fetch origin "${TOOL_SHA}"
+          git -C "${submodule_path}" checkout "${TOOL_SHA}"
+          new_sha="$(git -C "${submodule_path}" rev-parse HEAD)"
+          short_sha="$(git -C "${submodule_path}" rev-parse --short HEAD)"
+
+          echo "new_sha=${new_sha}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${short_sha}" >> "$GITHUB_OUTPUT"
+
+      - name: Detect changes
+        id: changes
+        run: |
+          set -euo pipefail
+
+          submodule_path="${{ steps.resolve.outputs.submodule_path }}"
+          if git diff --quiet -- "${submodule_path}"; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create sync branch and commit
+        if: steps.changes.outputs.has_changes == 'true'
+        id: commit
+        run: |
+          set -euo pipefail
+
+          submodule_path="${{ steps.resolve.outputs.submodule_path }}"
+          short_sha="${{ steps.update.outputs.short_sha }}"
+          branch_name="sync/${TOOL_KEY}-${short_sha}"
+
+          git config user.name "rele-sync-bot"
+          git config user.email "rele-sync-bot@users.noreply.github.com"
+
+          git checkout -b "${branch_name}"
+          git add "${submodule_path}"
+          git commit -m "chore: update ${TOOL_KEY} submodule to ${short_sha}"
+          git push --set-upstream origin "${branch_name}"
+
+          echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        if: steps.changes.outputs.has_changes == 'true'
+        id: pr
+        run: |
+          set -euo pipefail
+
+          branch_name="${{ steps.commit.outputs.branch_name }}"
+          existing_pr_url="$(gh pr list --head "${branch_name}" --state open --json url --jq '.[0].url')"
+
+          if [ -n "${existing_pr_url}" ]; then
+            pr_url="${existing_pr_url}"
+          else
+            pr_url="$(gh pr create \
+              --base master \
+              --head "${branch_name}" \
+              --title "chore: sync ${TOOL_KEY} tool update" \
+              --body "## Automatische Tool-Synchronisierung
+
+- Tool: ${{ steps.resolve.outputs.tool_name }}
+- Quelle: ${SOURCE_REPO}
+- Commit: \`${{ steps.update.outputs.new_sha }}\`
+
+Diese PR wurde automatisch durch \`repository_dispatch\` erstellt.")"
+          fi
+
+          echo "pr_url=${pr_url}" >> "$GITHUB_OUTPUT"
+
+      - name: Enable auto-merge
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          set -euo pipefail
+
+          gh pr merge --auto --squash "${{ steps.pr.outputs.pr_url }}"
+
+      - name: No update required
+        if: steps.changes.outputs.has_changes != 'true'
+        run: |
+          echo "Submodulstand ist bereits aktuell. Keine PR notwendig."

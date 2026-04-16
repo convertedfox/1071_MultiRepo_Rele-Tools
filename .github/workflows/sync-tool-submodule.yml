@@ -32,7 +32,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+          submodules: false
+          token: ${{ secrets.SUBMODULES_READ_TOKEN || github.token }}
 
       - name: Resolve payload
         id: payload
@@ -88,10 +89,8 @@ jobs:
           submodule_path="${{ steps.payload.outputs.submodule_path }}"
           tool_sha="${{ steps.payload.outputs.tool_sha }}"
 
-          if [ ! -d "${submodule_path}" ]; then
-            echo "Submodulpfad nicht gefunden: ${submodule_path}"
-            exit 1
-          fi
+          git submodule sync -- "${submodule_path}"
+          git submodule update --init --force -- "${submodule_path}"
 
           git -C "${submodule_path}" fetch origin "${tool_sha}"
           git -C "${submodule_path}" checkout "${tool_sha}"
